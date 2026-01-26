@@ -3,6 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 
 from api.routes.churn import router as churn_router
+from core.tracing import setup_tracing
+
+# Initialize Tracing
+setup_tracing()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +33,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
+    logger.info("Tracing initialized.")
     logger.info("FreshMart Customer Retention API started")
 
 @app.get("/")
