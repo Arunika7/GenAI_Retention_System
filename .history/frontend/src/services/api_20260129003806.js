@@ -91,21 +91,6 @@ export const generateOutreach = async (outreachData) => {
 };
 
 /**
- * Fetch analytics data for the dashboard.
- * 
- * @returns {Promise<Object>} - Analytics data including risk distribution, avg churn probability, total customers.
- */
-export const fetchAnalytics = async () => {
-    try {
-        const response = await apiClient.get('/api/churn/analytics');
-        return response.data;
-    } catch (error) {
-        handleApiError(error);
-        throw error;
-    }
-};
-
-/**
  * Helper function to handle API errors consistently.
  * 
  * @param {Error} error - The error object from axios.

@@ -1,3 +1,7 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-*: initial;
+}
+
 @variant dark (.dark &);

@@ -26,13 +26,13 @@ const Layout = ({ children, currentView, setCurrentView }) => {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex font-sans text-gray-900 dark:text-gray-100 transition-colors duration-200">
 
             {/* Sidebar - Desktop */}
-            <aside className="w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 text-gray-900 dark:text-white flex-col hidden md:flex shadow-xl z-20 transition-colors duration-200">
+            <aside className="w-64 bg-slate-900 dark:bg-slate-950 text-white flex-col hidden md:flex shadow-xl z-20">
                 {/* Brand */}
-                <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 transition-colors duration-200">
-                    <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-3 shadow-lg shadow-blue-500/20">
+                <div className="h-16 flex items-center px-6 border-b border-slate-800 dark:border-slate-700 bg-slate-950 dark:bg-black">
+                    <div className="h-8 w-8 bg-blue-600 dark:bg-blue-500 rounded-lg flex items-center justify-center text-white mr-3 shadow-lg shadow-blue-500/20">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </div>
-                    <span className="font-bold text-lg tracking-tight text-gray-900 dark:text-white">FreshMart AI</span>
+                    <span className="font-bold text-lg tracking-tight">FreshMart AI</span>
                 </div>
 
                 {/* Navigation */}
@@ -45,11 +45,11 @@ const Layout = ({ children, currentView, setCurrentView }) => {
                                 key={item.id}
                                 onClick={() => setCurrentView(item.id)}
                                 className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group ${isActive
-                                        ? 'bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-600/20 shadow-sm'
-                                        : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'
+                                        ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20 shadow-sm'
+                                        : 'text-slate-400 hover:bg-slate-800 dark:hover:bg-slate-900 hover:text-white'
                                     }`}
                             >
-                                <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-slate-500 group-hover:text-gray-900 dark:group-hover:text-white'}`} />
+                                <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-blue-400' : 'text-slate-500 group-hover:text-white'}`} />
                                 {item.label}
                             </button>
                         );
@@ -57,16 +57,16 @@ const Layout = ({ children, currentView, setCurrentView }) => {
                 </nav>
 
                 {/* User Profile Footer */}
-                <div className="p-4 border-t border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950/50 transition-colors duration-200">
+                <div className="p-4 border-t border-slate-800 dark:border-slate-700 bg-slate-950/50 dark:bg-black/50">
                     <div className="flex items-center">
-                        <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs ring-2 ring-gray-300 dark:ring-slate-800">
+                        <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs ring-2 ring-slate-800 dark:ring-slate-700">
                             JD
                         </div>
                         <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">John Doe</p>
-                            <p className="text-xs text-gray-500 dark:text-slate-400">Analyst</p>
+                            <p className="text-sm font-medium text-white">John Doe</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">Analyst</p>
                         </div>
-                        <button className="ml-auto text-gray-500 dark:text-slate-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <button className="ml-auto text-slate-500 hover:text-white transition-colors">
                             <LogOut className="w-4 h-4" />
                         </button>
                     </div>
