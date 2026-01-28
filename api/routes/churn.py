@@ -192,6 +192,52 @@ async def generate_outreach(request: OutreachRequest):
         logger.error(f"Failed to generate outreach: {e}")
         raise HTTPException(status_code=500, detail="GenAI outreach generation failed.")
 
+@router.get("/top-risk")
+async def get_top_risk_customers():
+    """
+    Retrieve the top 100 at-risk customers from the batch job results.
+    """
+    import sqlite3
+    import json
+    
+    DB_PATH = "data/churn.db"
+    
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT * FROM at_risk_customers ORDER BY churn_probability DESC LIMIT 100")
+        rows = cursor.fetchall()
+        
+        results = []
+        for row in rows:
+            # Parse JSON fields
+            try:
+                factors = json.loads(row['factors'])
+            except:
+                factors = []
+                
+            try:
+                recommendations = json.loads(row['recommendations'])
+            except:
+                recommendations = []
+                
+            results.append({
+                "customer_id": row['customer_id'],
+                "churn_probability": row['churn_probability'],
+                "churn_risk": row['churn_risk'],
+                "key_factors": factors,
+                "recommendations": recommendations
+            })
+            
+        conn.close()
+        return results
+        
+    except Exception as e:
+        logger.error(f"Failed to fetch top risk customers: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve data: {str(e)}")
+
 @router.get("/health")
 async def health_check():
     """
