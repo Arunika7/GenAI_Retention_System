@@ -4,6 +4,7 @@ import PredictionCard from '../components/PredictionCard';
 import ExplanationPanel from '../components/ExplanationPanel';
 import RecommendationsPanel from '../components/RecommendationsPanel';
 import OutreachModal from '../components/OutreachModal';
+import ABComparisonModal from '../components/ABComparisonModal';
 import { predictChurn, simulateIntervention, generateOutreach } from '../services/api';
 
 const Dashboard = () => {
@@ -19,6 +20,7 @@ const Dashboard = () => {
     const [outreachData, setOutreachData] = useState(null);
     const [outreachLoading, setOutreachLoading] = useState(false);
     const [isOutreachOpen, setIsOutreachOpen] = useState(false);
+    const [isABTestOpen, setIsABTestOpen] = useState(false);
 
     const handlePrediction = async (formData) => {
         setLoading(true);
@@ -174,15 +176,23 @@ const Dashboard = () => {
                                             <h3 className="text-lg font-bold text-gray-900">Strategy Command Center</h3>
                                             <p className="text-xs text-indigo-600 font-semibold uppercase">Simulate Interventions & Generate Outreach</p>
                                         </div>
-                                        <button
-                                            onClick={handleOutreachDraft}
-                                            className="px-6 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 flex items-center"
-                                        >
-                                            <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                            Generate Outreach Draft
-                                        </button>
+                                        <div className="flex space-x-3">
+                                            <button
+                                                onClick={() => setIsABTestOpen(true)}
+                                                className="px-4 py-2 border border-indigo-200 text-indigo-600 rounded-lg text-sm font-bold hover:bg-indigo-50 transition-all"
+                                            >
+                                                Run A/B Test
+                                            </button>
+                                            <button
+                                                onClick={handleOutreachDraft}
+                                                className="px-6 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 flex items-center"
+                                            >
+                                                <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                Generate Outreach Draft
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -280,6 +290,12 @@ const Dashboard = () => {
                 onClose={() => setIsOutreachOpen(false)}
                 outreachData={outreachData}
                 loading={outreachLoading}
+            />
+
+            <ABComparisonModal
+                isOpen={isABTestOpen}
+                onClose={() => setIsABTestOpen(false)}
+                customerId={prediction?.customer_id}
             />
         </div>
     );

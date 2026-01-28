@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an axios instance with default configuration
 const apiClient = axios.create({
-    baseURL: 'http://127.0.0.1:8000', // Configure base URL
+    baseURL: 'http://localhost:8000', // Configure base URL
     timeout: 10000, // 10 seconds timeout
     headers: {
         'Content-Type': 'application/json',
@@ -50,6 +50,22 @@ export const fetchCustomer = async (customerId) => {
 export const simulateIntervention = async (simulationData) => {
     try {
         const response = await apiClient.post('/api/churn/simulate', simulationData);
+        return response.data;
+    } catch (error) {
+        handleApiError(error);
+        throw error;
+    }
+};
+
+/**
+ * Simulate comparison between two interventions.
+ * 
+ * @param {Object} payload - { customer_id, strategy_a, strategy_b }
+ * @returns {Promise<Object>} - Comparison result.
+ */
+export const simulateComparison = async (payload) => {
+    try {
+        const response = await apiClient.post('/api/churn/simulate-comparison', payload);
         return response.data;
     } catch (error) {
         handleApiError(error);

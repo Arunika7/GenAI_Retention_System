@@ -24,7 +24,7 @@ class GenAIExplanationEngine:
         else:
             self.client = Groq(api_key=self.api_key)
             
-    def generate_explanation(self, customer_features: dict, churn_probability: float, churn_risk: str) -> dict:
+    def generate_explanation(self, customer_features: dict, churn_probability: float, churn_risk: str, context: dict = None) -> dict:
         """
         Generate a comprehensive, narrative explanation for the churn prediction using LLM.
         """
@@ -33,7 +33,7 @@ class GenAIExplanationEngine:
 
         try:
             # 1. Prepare Prompt
-            prompt = self._construct_prompt(customer_features, churn_probability, churn_risk)
+            prompt = self._construct_prompt(customer_features, churn_probability, churn_risk, context)
             
             # 2. Call Groq API
             chat_completion = self.client.chat.completions.create(
@@ -131,9 +131,22 @@ class GenAIExplanationEngine:
                 "channel_optimized": "Email"
             }
 
-    def _construct_prompt(self, features: dict, prob: float, risk: str) -> str:
+    def _construct_prompt(self, features: dict, prob: float, risk: str, context: dict = None) -> str:
+        
+        competitor_text = ""
+        if context and context.get("competitor_data") and context["competitor_data"].get("has_risk"):
+            data = context["competitor_data"]
+            competitor_text = f"""
+            **Competitor Alert:**
+            - Competitor '{data.get('competitor_name')}' is selling '{features.get('primary_category')}' for ${data.get('competitor_price')} (Gap: {data.get('gap_pct'):.1%}).
+            - This is a critical churn driver. You MUST mention this price difference as a key reason for churn.
+            - Recommendation: Suggest a price match or counter-offer.
+            """
+
         return f"""
         Analyze this customer for churn risk.
+        
+        {competitor_text}
         
         **Customer Profile:**
         - Churn Risk Level: {risk}

@@ -11,7 +11,11 @@ from api.schemas import (
     SimulationInput,
     SimulationResponse,
     OutreachRequest,
-    OutreachResponse
+    OutreachResponse,
+    ComparisonResult,
+    InterventionConfig,
+    ComparisonRequest,
+    InterventionResult
 )
 from genai.explanation_engine import GenAIExplanationEngine
 
@@ -31,6 +35,44 @@ try:
 except Exception as e:
     logger.error(f"Failed to load customer data: {e}")
     CUSTOMER_DF = pd.DataFrame()
+
+# Load competitor data
+try:
+    COMPETITOR_DF = pd.read_csv("data/competitor_prices.csv")
+    logger.info(f"Loaded {len(COMPETITOR_DF)} competitor price records.")
+except Exception as e:
+    logger.error(f"Failed to load competitor data: {e}")
+    COMPETITOR_DF = pd.DataFrame()
+
+def get_competitor_gap(category: str, freshmart_price: float = None):
+    """
+    Finds the largest price gap for a given category.
+    Returns (gap_percentage, competitor_name, competitor_price)
+    """
+    if COMPETITOR_DF.empty:
+        return 0.0, None, 0.0
+    
+    # Filter for the category
+    cat_prices = COMPETITOR_DF[COMPETITOR_DF['category'] == category]
+    if cat_prices.empty:
+        return 0.0, None, 0.0
+    
+    # Get FreshMart price from our data if not provided (assuming it's in the CSV)
+    # The CSV structure is: category, freshmart_avg_price, competitor_name, competitor_price
+    # We take the first row's freshmart price as reference if multiple competitors exist
+    if freshmart_price is None:
+        freshmart_price = cat_prices.iloc[0]['freshmart_avg_price']
+    
+    # Find lowest competitor price
+    min_comp_row = cat_prices.loc[cat_prices['competitor_price'].idxmin()]
+    min_price = min_comp_row['competitor_price']
+    competitor_name = min_comp_row['competitor_name']
+    
+    if freshmart_price <= 0:
+        return 0.0, None, 0.0
+
+    gap = (freshmart_price - min_price) / freshmart_price
+    return gap, competitor_name, min_price
 
 @router.get("/customer/{customer_id}", response_model=CustomerProfile)
 async def get_customer(customer_id: str):
@@ -71,6 +113,18 @@ async def predict_churn(features: CustomerFeatures):
                     ((1 - normalized_purchase_count) * 0.3) +
                     discount_score + online_score
                 )
+
+                
+                # --- Competitor Price Gap Analysis ---
+                gap_pct, comp_name, comp_price = get_competitor_gap(features.primary_category)
+                competitor_risk_factor = False
+                
+                if gap_pct > 0.10: # If competitor is > 10% cheaper
+                    churn_probability += 0.15
+                    competitor_risk_factor = True
+                    span.set_attribute("competitor_risk", True)
+                    span.set_attribute("competitor_gap", gap_pct)
+                
                 churn_probability = min(max(churn_probability, 0.0), 0.99)
                 
                 span.set_attribute("churn_probability", float(churn_probability))
@@ -89,12 +143,24 @@ async def predict_churn(features: CustomerFeatures):
                 
                 span.set_attribute("churn_risk", risk_level)
 
+
                 # --- GenAI Integration ---
+                # Prepare explanation data context
+                explanation_context = {
+                    "competitor_data": {
+                        "has_risk": competitor_risk_factor,
+                        "competitor_name": comp_name,
+                        "competitor_price": comp_price,
+                        "gap_pct": gap_pct
+                    } if competitor_risk_factor else None
+                }
+                
                 # We pass the calculated metrics to the LLM to get the "Why" and "What Next"
                 explanation_data = explanation_engine.generate_explanation(
                     features.dict(),
                     churn_probability,
-                    risk_level
+                    risk_level,
+                    explanation_context
                 )
                 
                 explanation_summary = explanation_data.get("summary")
@@ -237,6 +303,71 @@ async def get_top_risk_customers():
     except Exception as e:
         logger.error(f"Failed to fetch top risk customers: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to retrieve data: {str(e)}")
+
+@router.post("/simulate-comparison", response_model=ComparisonResult)
+async def simulate_comparison(request: ComparisonRequest):
+    """
+    Compare two intervention strategies side-by-side and determine a winner
+    based on Net Retention Score.
+    """
+    
+    if request.customer_id not in CUSTOMER_DF.index:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    
+    features = CUSTOMER_DF.loc[request.customer_id].to_dict()
+    
+    # 1. Calculate Baseline
+    days_since = min(features.get('days_since_last_purchase', 30) / 90, 1.0)
+    purchase_vol = min(features.get('yearly_purchase_count', 12) / 52, 1.0)
+    
+    baseline_prob = (days_since * 0.5) + ((1 - purchase_vol) * 0.3)
+    baseline_prob = min(max(baseline_prob, 0.01), 0.99)
+    
+    avg_order_value = features.get('avg_order_value', 50.0)
+    annual_value = avg_order_value * features.get('yearly_purchase_count', 12) # Rough LTV proxy
+    
+    def calculate_impact(strategy: InterventionConfig):
+        # Calculate impact similar to simulate endpoint
+        discount_impact = (strategy.planned_discount / 100) * 0.4
+        points_impact = min(strategy.loyalty_points_bonus / 1000, 1.0) * 0.1
+        
+        new_prob = baseline_prob - discount_impact - points_impact
+        new_prob = min(max(new_prob, 0.01), 0.99)
+        
+        reduction = baseline_prob - new_prob
+        
+        # Calculate Cost
+        # Discount cost = discount % of ONE order * probability they stay? 
+        # For simplicity in this v1: cost = discount % of average order value
+        cost_discount = (strategy.planned_discount / 100) * avg_order_value
+        cost_points = strategy.loyalty_points_bonus * 0.01 # $0.01 per point
+        total_cost = cost_discount + cost_points
+        
+        # Calculate Net Score
+        # Value Saved = Reduction in Churn * Annual Value
+        value_saved = reduction * annual_value
+        net_score = value_saved - total_cost
+        
+        return InterventionResult(
+            name=strategy.name,
+            new_churn_probability=new_prob,
+            churn_reduction_absolute=reduction,
+            intervention_cost=total_cost,
+            net_retention_score=net_score
+        )
+
+    result_a = calculate_impact(request.strategy_a)
+    result_b = calculate_impact(request.strategy_b)
+    
+    winner = result_a.name if result_a.net_retention_score > result_b.net_retention_score else result_b.name
+    
+    return ComparisonResult(
+        customer_id=request.customer_id,
+        baseline_churn_probability=baseline_prob,
+        strategy_a=result_a,
+        strategy_b=result_b,
+        winner=winner
+    )
 
 @router.get("/health")
 async def health_check():
