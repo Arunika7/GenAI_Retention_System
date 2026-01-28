@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+@theme {
+  --color-*: initial;
+  --breakpoint-*: initial;
+}
+
+@variant dark (&:where(.dark, .dark *));

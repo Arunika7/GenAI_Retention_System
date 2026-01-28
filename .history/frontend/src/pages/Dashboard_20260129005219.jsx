@@ -104,19 +104,19 @@ const Dashboard = ({ selectedCustomer, clearSelection }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-12 transition-colors duration-200">
+        <div className="min-h-screen bg-gray-50 pb-12">
             {/* Header */}
-            <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 transition-colors duration-200">
+            <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">FreshMart Retention Intelligence</h1>
-                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            <h1 className="text-2xl font-bold text-gray-900">FreshMart Retention Intelligence</h1>
+                            <p className="mt-1 text-sm text-gray-500">
                                 GenAI-Powered Customer Churn Prediction & Recommendations
                             </p>
                         </div>
                         <div className="flex items-center space-x-3">
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 System Active
                             </span>
                         </div>
@@ -128,15 +128,15 @@ const Dashboard = ({ selectedCustomer, clearSelection }) => {
 
                 {/* Error Notification */}
                 {error && (
-                    <div className="mb-6 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-500 p-4 rounded-md animate-fade-in">
+                    <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-md animate-fade-in">
                         <div className="flex">
                             <div className="flex-shrink-0">
-                                <svg className="h-5 w-5 text-red-400 dark:text-red-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                 </svg>
                             </div>
                             <div className="ml-3">
-                                <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                                <p className="text-sm text-red-700">{error}</p>
                             </div>
                         </div>
                     </div>
@@ -146,16 +146,16 @@ const Dashboard = ({ selectedCustomer, clearSelection }) => {
 
                     {/* Left Column: Input Form */}
                     <div className="lg:col-span-4 sticky top-28">
-                        <ChurnForm onSubmit={handlePrediction} initialData={initialFormData} />
+                        <ChurnForm onSubmit={handlePrediction} />
                     </div>
 
                     {/* Right Column: Results */}
                     <div className="lg:col-span-8 space-y-6">
                         {loading ? (
-                            <div className="bg-white dark:bg-gray-800 rounded-lg p-12 text-center shadow-sm border border-gray-100 dark:border-gray-700 min-h-[400px] flex flex-col items-center justify-center transition-colors duration-200">
-                                <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-500 dark:border-blue-400 border-t-transparent"></div>
-                                <p className="mt-6 text-gray-800 dark:text-gray-100 font-semibold text-lg">Running Analysis...</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Processing customer tokens & generating retention strategy</p>
+                            <div className="bg-white rounded-lg p-12 text-center shadow-sm border border-gray-100 min-h-[400px] flex flex-col items-center justify-center">
+                                <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent"></div>
+                                <p className="mt-6 text-gray-800 font-semibold text-lg">Running Analysis...</p>
+                                <p className="text-sm text-gray-500">Processing customer tokens & generating retention strategy</p>
                             </div>
                         ) : prediction ? (
                             <div className="animate-fade-in space-y-6">
@@ -196,11 +196,11 @@ const Dashboard = ({ selectedCustomer, clearSelection }) => {
                                 />
 
                                 {/* NEW: Strategy Command Center (Simulation & Outreach) */}
-                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-indigo-100 dark:border-gray-700 overflow-hidden transition-colors duration-200">
-                                    <div className="p-6 bg-indigo-50 dark:bg-indigo-900/20 border-b border-indigo-100 dark:border-gray-700 flex justify-between items-center">
+                                <div className="bg-white rounded-xl shadow-md border border-indigo-100 overflow-hidden">
+                                    <div className="p-6 bg-indigo-50 border-b border-indigo-100 flex justify-between items-center">
                                         <div>
-                                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Strategy Command Center</h3>
-                                            <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold uppercase">Simulate Interventions & Generate Outreach</p>
+                                            <h3 className="text-lg font-bold text-gray-900">Strategy Command Center</h3>
+                                            <p className="text-xs text-indigo-600 font-semibold uppercase">Simulate Interventions & Generate Outreach</p>
                                         </div>
                                         <button
                                             onClick={handleOutreachDraft}
@@ -218,8 +218,8 @@ const Dashboard = ({ selectedCustomer, clearSelection }) => {
                                         <div className="space-y-8">
                                             <div>
                                                 <div className="flex justify-between mb-4">
-                                                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Planned Discount</label>
-                                                    <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full text-sm font-bold">{discount}%</span>
+                                                    <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Planned Discount</label>
+                                                    <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-bold">{discount}%</span>
                                                 </div>
                                                 <input
                                                     type="range" min="0" max="40" step="5" value={discount}
@@ -234,8 +234,8 @@ const Dashboard = ({ selectedCustomer, clearSelection }) => {
 
                                             <div>
                                                 <div className="flex justify-between mb-4">
-                                                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Loyalty Bonus</label>
-                                                    <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full text-sm font-bold">{points} pts</span>
+                                                    <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Loyalty Bonus</label>
+                                                    <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-bold">{points} pts</span>
                                                 </div>
                                                 <input
                                                     type="range" min="0" max="2000" step="100" value={points}
@@ -250,34 +250,34 @@ const Dashboard = ({ selectedCustomer, clearSelection }) => {
                                         </div>
 
                                         {/* Right: Simulation Result */}
-                                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6 border border-gray-100 dark:border-gray-600 flex flex-col justify-center relative overflow-hidden">
-                                            {simLoading && <div className="absolute inset-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
+                                        <div className="bg-gray-50 rounded-xl p-6 border border-gray-100 flex flex-col justify-center relative overflow-hidden">
+                                            {simLoading && <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
                                                 <div className="h-6 w-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
                                             </div>}
 
-                                            <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Simulated Outcome</p>
+                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Simulated Outcome</p>
 
                                             <div className="flex items-center space-x-6">
                                                 <div className="text-center">
-                                                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold mb-1">Before</p>
-                                                    <p className="text-xl font-bold text-gray-400 dark:text-gray-500 line-through">
+                                                    <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Before</p>
+                                                    <p className="text-xl font-bold text-gray-400 line-through">
                                                         {(prediction.churn_probability * 100).toFixed(1)}%
                                                     </p>
                                                 </div>
-                                                <div className="h-8 w-px bg-gray-200 dark:bg-gray-600"></div>
+                                                <div className="h-8 w-px bg-gray-200"></div>
                                                 <div className="text-center">
-                                                    <p className="text-[10px] text-indigo-500 dark:text-indigo-400 uppercase font-bold mb-1">After</p>
-                                                    <p className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
+                                                    <p className="text-[10px] text-indigo-500 uppercase font-bold mb-1">After</p>
+                                                    <p className="text-3xl font-black text-indigo-600">
                                                         {simResults ? (simResults.new_probability * 100).toFixed(1) : (prediction.churn_probability * 100).toFixed(1)}%
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
-                                                <p className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                                            <div className="mt-6 pt-6 border-t border-gray-200">
+                                                <p className="text-sm font-bold text-gray-800">
                                                     {simResults?.risk_reduction_level || "Standby for simulation..."}
                                                 </p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                <p className="text-xs text-gray-500 mt-1">
                                                     {simResults?.impact_description || "Adjust sliders to see impact on retention."}
                                                 </p>
                                             </div>
@@ -287,14 +287,14 @@ const Dashboard = ({ selectedCustomer, clearSelection }) => {
                             </div>
                         ) : (
                             // Empty State
-                            <div className="bg-white dark:bg-gray-800 rounded-lg p-16 text-center shadow-sm border border-dashed border-gray-300 dark:border-gray-600 min-h-[600px] flex flex-col items-center justify-center transition-colors duration-200">
-                                <div className="h-20 w-20 bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center mb-6">
-                                    <svg className="h-10 w-10 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div className="bg-white rounded-lg p-16 text-center shadow-sm border border-dashed border-gray-300 min-h-[600px] flex flex-col items-center justify-center">
+                                <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                                    <svg className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Ready to Analyze</h3>
-                                <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto leading-relaxed">
+                                <h3 className="text-xl font-semibold text-gray-900 mb-2">Ready to Analyze</h3>
+                                <p className="text-gray-500 max-w-sm mx-auto leading-relaxed">
                                     Enter customer behavioral data on the left to generate advanced churn predictions and personalized retention strategies.
                                 </p>
                             </div>

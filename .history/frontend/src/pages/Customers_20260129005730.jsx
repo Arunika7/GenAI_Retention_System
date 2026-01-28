@@ -149,30 +149,30 @@ const Customers = ({ onSelectCustomer }) => {
             </div>
 
             <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-700/50">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Customer ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Demographics</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Location</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Discount Sensitivity</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Avg Order Value</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Churn Risk</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer ID</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Demographics</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount Sensitivity</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Order Value</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Churn Risk</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody className="bg-white divide-y divide-gray-200">
                         {filteredCustomers.length > 0 ? (
                             filteredCustomers.map((customer) => (
                                 <tr 
                                     key={customer.customer_id} 
                                     onClick={() => onSelectCustomer && onSelectCustomer(customer)}
-                                    className="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors cursor-pointer group"
+                                    className="hover:bg-blue-50 transition-colors cursor-pointer group"
                                 >
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">{customer.customer_id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{customer.gender || 'N/A'} ({customer.age || 'N/A'})</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{customer.primary_category || 'N/A'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{customer.location || 'N/A'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 group-hover:text-blue-600">{customer.customer_id}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.gender || 'N/A'} ({customer.age || 'N/A'})</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.primary_category || 'N/A'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.location || 'N/A'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                             customer.discount_sensitivity === 'High' ? 'bg-purple-100 text-purple-800' :
@@ -182,14 +182,14 @@ const Customers = ({ onSelectCustomer }) => {
                                             {customer.discount_sensitivity || 'N/A'}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         ${customer.avg_order_value ? customer.avg_order_value.toFixed(2) : 'N/A'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                            calculateRisk(customer) === 'High' ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' :
-                                            calculateRisk(customer) === 'Medium' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
-                                            'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                                            calculateRisk(customer) === 'High' ? 'bg-red-100 text-red-800' :
+                                            calculateRisk(customer) === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                                            'bg-green-100 text-green-800'
                                         }`}>
                                             {calculateRisk(customer)}
                                         </span>
@@ -199,8 +199,8 @@ const Customers = ({ onSelectCustomer }) => {
                         ) : (
                             <tr>
                                 <td colSpan="7" className="px-6 py-12 text-center">
-                                    <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
-                                        <svg className="h-12 w-12 mb-3 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div className="flex flex-col items-center justify-center text-gray-500">
+                                        <svg className="h-12 w-12 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                         <p className="text-sm font-medium">No results found</p>
@@ -213,8 +213,8 @@ const Customers = ({ onSelectCustomer }) => {
                 </table>
             </div>
             
-            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <p className="text-sm text-gray-500">
                     Showing {filteredCustomers.length} of {totalRecords.toLocaleString()} total records (displaying up to {displayLimit} at a time)
                 </p>
             </div>
