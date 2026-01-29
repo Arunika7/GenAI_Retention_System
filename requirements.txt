@@ -6,3 +6,5 @@ opentelemetry-sdk
 opentelemetry-exporter-otlp
 groq
 python-dotenv
+pandas
+httpx

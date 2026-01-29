@@ -68,3 +68,39 @@ class OutreachResponse(BaseModel):
     subject_line: str
     message_body: str
     channel_optimized: str
+
+class InterventionConfig(BaseModel):
+    """
+    Configuration for a single intervention strategy in a comparison.
+    """
+    name: str = Field(..., description="Name of the strategy (e.g. 'Aggressive Discount')")
+    planned_discount: float = Field(default=0.0, description="Discount percentage (0-100)")
+    loyalty_points_bonus: int = Field(default=0, description="Loyalty points to add")
+
+class InterventionResult(BaseModel):
+    """
+    Result of a single intervention simulation.
+    """
+    name: str
+    new_churn_probability: float
+    churn_reduction_absolute: float
+    intervention_cost: float
+    net_retention_score: float
+
+class ComparisonResult(BaseModel):
+    """
+    Response schema for the A/B comparison.
+    """
+    customer_id: str
+    baseline_churn_probability: float
+    strategy_a: InterventionResult
+    strategy_b: InterventionResult
+    winner: str = Field(..., description="Name of the winning strategy")
+
+class ComparisonRequest(BaseModel):
+    """
+    Request schema for running an A/B test.
+    """
+    customer_id: str
+    strategy_a: InterventionConfig
+    strategy_b: InterventionConfig
