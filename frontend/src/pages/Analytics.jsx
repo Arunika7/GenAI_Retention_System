@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-    LineChart, Line, AreaChart, Area
+    AreaChart, Area
 } from 'recharts';
 
 const Analytics = () => {
-    const churnData = [
+    const [metrics, setMetrics] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    const churnChartData = [
         { name: 'Jan', retained: 4000, churned: 240 },
         { name: 'Feb', retained: 3000, churned: 139 },
         { name: 'Mar', retained: 2000, churned: 980 },
@@ -14,55 +17,80 @@ const Analytics = () => {
         { name: 'Jun', retained: 2390, churned: 380 },
     ];
 
-    const revenueData = [
-        { name: 'Jan', value: 2400 },
-        { name: 'Feb', value: 1398 },
-        { name: 'Mar', value: 9800 },
-        { name: 'Apr', value: 3908 },
-        { name: 'May', value: 4800 },
-        { name: 'Jun', value: 3800 },
-    ];
+    useEffect(() => {
+        fetchAnalytics();
+    }, []);
+
+    const fetchAnalytics = async () => {
+        try {
+            const res = await fetch('http://localhost:8000/api/churn/analytics');
+            const data = await res.json();
+            setMetrics(data);
+        } catch (err) {
+            console.error("Failed to load analytics", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return <div className="p-12 text-center text-gray-500">Loading Real-Time Analytics...</div>;
+    }
 
     return (
         <div className="space-y-6">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-800">System Analytics</h2>
+                <button
+                    onClick={fetchAnalytics}
+                    className="text-sm bg-white border border-gray-300 px-3 py-1 rounded shadow-sm hover:bg-gray-50"
+                >
+                    Refresh Data
+                </button>
+            </div>
+
+            {/* REAL Metrics from Backend */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* KPI Cards */}
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                    <h3 className="text-gray-500 text-sm font-medium uppercase">Avg Churn Rate</h3>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">12.4%</p>
+                    <h3 className="text-gray-500 text-sm font-medium uppercase">Avg Churn Risk</h3>
+                    <p className="text-3xl font-bold text-gray-900 mt-2">
+                        {metrics ? (metrics.avg_churn_rate * 100).toFixed(1) : "-"}%
+                    </p>
                     <span className="text-green-600 text-sm font-medium flex items-center mt-1">
-                        ↓ 2.1% <span className="text-gray-400 ml-1">vs last month</span>
+                        Based on {metrics?.total_customers} active customers
                     </span>
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                    <h3 className="text-gray-500 text-sm font-medium uppercase">Total Revenue</h3>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">$1.2M</p>
-                    <span className="text-green-600 text-sm font-medium flex items-center mt-1">
-                        ↑ 8.4% <span className="text-gray-400 ml-1">vs last month</span>
+                    <h3 className="text-gray-500 text-sm font-medium uppercase">Est. Annual Revenue</h3>
+                    <p className="text-3xl font-bold text-gray-900 mt-2">
+                        ${metrics ? (metrics.total_revenue_est / 1000000).toFixed(2) : "-"}M
+                    </p>
+                    <span className="text-gray-400 text-xs mt-1">
+                        Projected based on current retention
                     </span>
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                    <h3 className="text-gray-500 text-sm font-medium uppercase">At-Risk Customers</h3>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">843</p>
+                    <h3 className="text-red-500 text-sm font-medium uppercase">High Risk Segment</h3>
+                    <p className="text-3xl font-bold text-gray-900 mt-2">
+                        {metrics?.high_risk_count || 0}
+                    </p>
                     <span className="text-red-600 text-sm font-medium flex items-center mt-1">
-                        ↑ 143 <span className="text-gray-400 ml-1">new this week</span>
+                        Immediate Action Required
                     </span>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Churn Trend Chart */}
+                {/* Visualizations (Kept Trend Data for visual demo, but we could make this dynamic too) */}
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-6">Retention vs Churn</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-6">Retention vs Churn (Trend)</h3>
                     <div className="h-80">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={churnData}>
+                            <BarChart data={churnChartData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                 <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
                                 <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                                <Tooltip
-                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                />
+                                <Tooltip />
                                 <Legend />
                                 <Bar dataKey="retained" stackId="a" fill="#3b82f6" radius={[0, 0, 4, 4]} />
                                 <Bar dataKey="churned" stackId="a" fill="#ef4444" radius={[4, 4, 0, 0]} />
@@ -71,27 +99,39 @@ const Analytics = () => {
                     </div>
                 </div>
 
-                {/* Revenue Trend Chart */}
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-6">Revenue Impact</h3>
-                    <div className="h-80">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={revenueData}>
-                                <defs>
-                                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                                <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                                <Tooltip
-                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                />
-                                <Area type="monotone" dataKey="value" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-6">Current Risk Distribution</h3>
+                    <div className="h-80 flex items-center justify-center">
+                        {/* Simple Distribution Bar */}
+                        <div className="w-full space-y-4">
+                            <div>
+                                <div className="flex justify-between mb-1">
+                                    <span className="text-sm font-medium text-red-700">High Risk</span>
+                                    <span className="text-sm font-medium text-red-700">{metrics?.high_risk_count}</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div className="bg-red-600 h-2.5 rounded-full" style={{ width: `${(metrics?.high_risk_count / metrics?.total_customers) * 100}%` }}></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div className="flex justify-between mb-1">
+                                    <span className="text-sm font-medium text-yellow-700">Medium Risk</span>
+                                    <span className="text-sm font-medium text-yellow-700">{metrics?.medium_risk_count}</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div className="bg-yellow-400 h-2.5 rounded-full" style={{ width: `${(metrics?.medium_risk_count / metrics?.total_customers) * 100}%` }}></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div className="flex justify-between mb-1">
+                                    <span className="text-sm font-medium text-green-700">Low Risk</span>
+                                    <span className="text-sm font-medium text-green-700">{metrics?.low_risk_count}</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div className="bg-green-600 h-2.5 rounded-full" style={{ width: `${(metrics?.low_risk_count / metrics?.total_customers) * 100}%` }}></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

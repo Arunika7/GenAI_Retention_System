@@ -7,7 +7,8 @@ import OutreachModal from '../components/OutreachModal';
 import ABComparisonModal from '../components/ABComparisonModal';
 import { predictChurn, simulateIntervention, generateOutreach } from '../services/api';
 
-const Dashboard = () => {
+const Dashboard = ({ initialCustomerId }) => {
+    // Initial state logic removed to let ChurnForm handle fetching
     const [prediction, setPrediction] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -120,7 +121,7 @@ const Dashboard = () => {
 
                     {/* Left Column: Input Form */}
                     <div className="lg:col-span-4 sticky top-28">
-                        <ChurnForm onSubmit={handlePrediction} />
+                        <ChurnForm onSubmit={handlePrediction} initialCustomerId={initialCustomerId} />
                     </div>
 
                     {/* Right Column: Results */}

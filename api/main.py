@@ -4,6 +4,7 @@ import logging
 
 from api.routes.churn import router as churn_router
 from core.tracing import setup_tracing
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 # Initialize Tracing
 setup_tracing()
@@ -18,6 +19,9 @@ app = FastAPI(
     description="API for predicting customer churn and recommending retention actions",
     version="1.0.0",
 )
+
+# Instrument the FastAPI application
+FastAPIInstrumentor.instrument_app(app)
 
 # Configure CORS
 app.add_middleware(

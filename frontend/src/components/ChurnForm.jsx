@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { fetchCustomer } from '../services/api';
 import { Search, Loader2 } from 'lucide-react';
 
-const ChurnForm = ({ onSubmit }) => {
+const ChurnForm = ({ onSubmit, initialCustomerId }) => {
     const [searchLoading, setSearchLoading] = useState(false);
+    const [hasFetchedInitial, setHasFetchedInitial] = useState(false);
     const [formData, setFormData] = useState({
-        customer_id: '',
+        customer_id: initialCustomerId || '',
         age: 35,
         gender: 'Female',
         location: 'New York',
@@ -18,6 +19,24 @@ const ChurnForm = ({ onSubmit }) => {
         discount_sensitivity: 'Medium',
         online_ratio: 0.5,
     });
+
+    // Auto-fetch if ID provided from navigation
+    React.useEffect(() => {
+        if (initialCustomerId && !hasFetchedInitial) {
+            setFormData(prev => ({ ...prev, customer_id: initialCustomerId }));
+            // We need to call the fetch logic here, but handleSearch is defined below.
+            // Simplified: direct call
+            const fetchInit = async () => {
+                setSearchLoading(true);
+                try {
+                    const data = await fetchCustomer(initialCustomerId);
+                    setFormData(prev => ({ ...prev, ...data }));
+                } catch (e) { console.error(e); }
+                finally { setSearchLoading(false); setHasFetchedInitial(true); }
+            };
+            fetchInit();
+        }
+    }, [initialCustomerId]);
 
     const handleSearch = async () => {
         if (!formData.customer_id) return;
