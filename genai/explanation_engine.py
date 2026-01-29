@@ -29,7 +29,7 @@ class GenAIExplanationEngine:
         Generate a comprehensive, narrative explanation for the churn prediction using LLM.
         """
         if not self.client:
-            return self._fallback_explanation(customer_features, churn_risk)
+            return self._fallback_explanation(customer_features, churn_risk, context)
 
         try:
             # 1. Prepare Prompt
@@ -167,11 +167,22 @@ class GenAIExplanationEngine:
         Return a single JSON object with keys: "summary", "key_factors", "recommended_actions".
         """
 
-    def _fallback_explanation(self, features: dict, risk_level: str) -> dict:
+    def _fallback_explanation(self, features: dict, risk_level: str, context: dict = None) -> dict:
         """Fallback to simple rule-based logic if API fails."""
         logger.info("Using fallback explanation logic.")
+        
+        summary = f"Customer is at {risk_level} risk. Please review recent transaction history."
+        factors = ["Manual review required"]
+        recommendations = ["Contact customer service"]
+
+        if context and context.get("competitor_data") and context["competitor_data"].get("has_risk"):
+            data = context["competitor_data"]
+            summary = f"COMPETITOR ALERT: {data['competitor_name']} is offering lower prices on {features.get('primary_category')} (Gap: {data.get('gap_pct'):.1%}). Risk is elevated."
+            factors.append(f"Price gap with {data['competitor_name']}")
+            recommendations.insert(0, "Offer price match")
+
         return {
-            "summary": f"Customer is at {risk_level} risk. Please review recent transaction history.",
-            "key_factors": ["Manual review required"],
-            "recommended_actions": ["Contact customer service"]
+            "summary": summary,
+            "key_factors": factors,
+            "recommended_actions": recommendations
         }

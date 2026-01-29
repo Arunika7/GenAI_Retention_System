@@ -1,0 +1,15 @@
+{
+  "customer_id": "FM_CUST_000010",
+  "churn_probability": 0.2,
+  "churn_risk": "Low",
+  "confidence_score": 0.8,
+  "recommendations": [
+    "Offer price match",
+    "Contact customer service"
+  ],
+  "explanation_summary": "COMPETITOR ALERT: ShopRight is offering lower prices on Grocery (Gap: 12.5%). Risk is elevated.",
+  "key_factors": [
+    "Manual review required",
+    "Price gap with ShopRight"
+  ]
+}

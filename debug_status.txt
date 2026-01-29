@@ -1,0 +1,2 @@
+SUCCESS: Loaded 50000 customers.
+Sample ID: FM_CUST_000001
