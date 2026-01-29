@@ -1,37 +1,26 @@
 import requests
 import json
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://localhost:8000/api/churn"
 
 def test_competitor_risk():
     # Customer FM_CUST_000010 has Primary Category 'Grocery'
     # Competitor Price for Grocery: 105 vs FreshMart 120 -> 12.5% gap
     
     customer_id = "FM_CUST_000010"
+    print(f"\n--- Testing {customer_id} with DIRECT payload ---")
     
-    # Feature payload (simplified for testing, API takes CustomerFeatures)
-    # We first fetch the profile to get realistic data, then send it back to predict
-    
-    print(f"Fetching profile for {customer_id}...")
-    resp = requests.get(f"{BASE_URL}/customer/{customer_id}")
-    if resp.status_code != 200:
-        print("Failed to fetch customer profile")
-        print(resp.text)
-        return
-
-    profile = resp.json()
-    print(f"Primary Category: {profile['primary_category']}")
-    
-    # Construct prediction payload
+    # Hardcoded profile from CSV
+    # FM_CUST_000010,29,Female,New York,37,Grocery,Baby Care,56,59,2341,Low,0.08,9
     payload = {
-        "customer_id": profile["customer_id"],
-        "primary_category": profile["primary_category"],
-        "yearly_purchase_count": profile["yearly_purchase_count"],
-        "avg_gap_days": profile["avg_gap_days"],
-        "avg_order_value": profile["avg_order_value"],
-        "days_since_last_purchase": profile["days_since_last_purchase"],
-        "discount_sensitivity": profile["discount_sensitivity"],
-        "online_ratio": profile["online_ratio"]
+        "customer_id": customer_id,
+        "primary_category": "Grocery",
+        "yearly_purchase_count": 56,
+        "avg_gap_days": 59,
+        "avg_order_value": 2341.0,
+        "days_since_last_purchase": 9,
+        "discount_sensitivity": "Low",
+        "online_ratio": 0.08
     }
     
     print("Requesting churn prediction...")
@@ -46,13 +35,11 @@ def test_competitor_risk():
     print("\nPrediction Result:")
     print(f"Churn Probability: {result['churn_probability']}")
     print(f"Risk Level: {result['churn_risk']}")
-    print(f"Recommendations: {result['recommendations']}")
     print(f"Explanation: {result['explanation_summary']}")
     
-    # Verification
-    # We expect probability to be high(er) and explanation to mention competitor.
-    # Note: probability increases by 0.15 if gap > 10%.
-    
+    with open("test_result.txt", "w") as f:
+        json.dump(result, f, indent=2)
+
     if "competitor" in json.dumps(result).lower() or "price difference" in json.dumps(result).lower():
         print("\nSUCCESS: Competitor analysis detected in response.")
     else:

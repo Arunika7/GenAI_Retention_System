@@ -32,8 +32,12 @@ try:
     CUSTOMER_DF["customer_id"] = CUSTOMER_DF["customer_id"].astype(str)
     CUSTOMER_DF.set_index("customer_id", inplace=True)
     logger.info(f"Loaded {len(CUSTOMER_DF)} customer records.")
+    with open("debug_status.txt", "w") as f:
+        f.write(f"SUCCESS: Loaded {len(CUSTOMER_DF)} customers.\nSample ID: {CUSTOMER_DF.index[0]}")
 except Exception as e:
     logger.error(f"Failed to load customer data: {e}")
+    with open("debug_status.txt", "w") as f:
+        f.write(f"ERROR: Failed to load customer data: {e}")
     CUSTOMER_DF = pd.DataFrame()
 
 # Load competitor data
