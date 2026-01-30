@@ -9,7 +9,9 @@ This system combines a high-performance **FastAPI backend** with a modern **Reac
 
 ### 🧠 Backend (Python & FastAPI)
 *   **API Architecture**: Modular FastAPI implementation with Pydantic schemas (`api/`).
-*   **Churn Prediction Engine**: Deterministic rule-based logic for risk scoring (`ml/churn_rules.py`).
+*   **Machine Learning Model**: Trained Random Forest Classifier for accurate churn probability inference (`ml/inference.py`).
+*   **Batch Analytics**: High-performance vectorized prediction for large-scale dashboard analytics.
+*   **Customer Database**: Searchable and paginated customer management endpoints.
 *   **GenAI Explanation Layer**: Simulates AI reasoning to generate human-readable narratives and business recommendations (`genai/explanation_engine.py`).
 *   **Feature Engineering**: robust preprocessing and normalization of customer data (`ml/features.py`).
 *   **Observability**: Integrated **OpenTelemetry** tracing and centralized logging (`observability/`).
@@ -18,6 +20,7 @@ This system combines a high-performance **FastAPI backend** with a modern **Reac
 
 ### 💻 Frontend (React + Vite)
 *   **Dashboard**: A responsive analytics dashboard (`frontend/src/pages/Dashboard.jsx`).
+*   **Customer Database**: Searchable list view with risk filtering (`frontend/src/pages/Customers.jsx`).
 *   **Interactive Forms**: `ChurnForm` for inputting customer metrics with validation.
 *   **Visualizations**: `PredictionCard` with color-coded risk indicators and confidence scores.
 *   **Insight Panels**: `ExplanationPanel` displaying natural language summaries and key risk factors.

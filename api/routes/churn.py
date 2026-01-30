@@ -78,36 +78,7 @@ def get_competitor_gap(category: str, freshmart_price: float = None):
     gap = (freshmart_price - min_price) / freshmart_price
     return gap, competitor_name, min_price
 
-@router.get("/customers")
-async def get_all_customers(skip: int = 0, limit: int = 100):
-    """
-    Fetch all customers with pagination support.
-    """
-    try:
-        # Get total count
-        total = len(CUSTOMER_DF)
-        
-        # Get paginated data
-        customers = []
-        for idx, (customer_id, row) in enumerate(CUSTOMER_DF.iterrows()):
-            if idx < skip:
-                continue
-            if idx >= skip + limit:
-                break
-            
-            customer_data = row.to_dict()
-            customer_data["customer_id"] = customer_id
-            customers.append(customer_data)
-        
-        return {
-            "customers": customers,
-            "total": total,
-            "skip": skip,
-            "limit": limit
-        }
-    except Exception as e:
-        logger.error(f"Failed to fetch customers: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/customer/{customer_id}", response_model=CustomerProfile)
 async def get_customer(customer_id: str):
@@ -328,11 +299,11 @@ async def get_analytics():
         sample_size = min(2000, len(CUSTOMER_DF))
         sample_df = CUSTOMER_DF.sample(n=sample_size, random_state=42)
         
-        risk_counts = {"Low": 0, "Medium": 0, "High": 0}
-        total_probability = 0
-        total_revenue = 0
+        # Prepare batch input
+        batch_inputs = []
+        customer_revenues = [] # Store revenue to match index with prediction
         
-        for customer_id, row in sample_df.iterrows():
+        for _, row in sample_df.iterrows():
             customer_data = row.to_dict()
             # Prepare format for model match
             model_input = {
@@ -343,25 +314,34 @@ async def get_analytics():
                 "online_ratio": customer_data.get("online_ratio", 0),
                 "avg_order_value": customer_data.get("avg_order_value", 0)
             }
+            batch_inputs.append(model_input)
             
-            try:
-                churn_prob = churn_model_service.predict_churn_probability(model_input)
-                
-                if churn_prob >= 0.7:
-                    r_level = "High"
-                elif churn_prob >= 0.4:
-                    r_level = "Medium"
-                else:
-                    r_level = "Low"
-                
-                risk_counts[r_level] += 1
-                total_probability += churn_prob
-                
-                est_revenue = customer_data.get("avg_order_value", 0) * customer_data.get("yearly_purchase_count", 0)
-                total_revenue += est_revenue
-                
-            except Exception:
-                continue
+            est_revenue = customer_data.get("avg_order_value", 0) * customer_data.get("yearly_purchase_count", 0)
+            customer_revenues.append(est_revenue)
+
+        # Batch Prediction (Vectorized)
+        try:
+             churn_probs = churn_model_service.predict_churn_batch(batch_inputs)
+        except Exception as e:
+             logger.error(f"Batch prediction failed: {e}")
+             churn_probs = [0.5] * len(batch_inputs) # Fallback
+
+        # Aggregation
+        risk_counts = {"Low": 0, "Medium": 0, "High": 0}
+        total_probability = 0
+        total_revenue = 0
+        
+        for i, prob in enumerate(churn_probs):
+            if prob >= 0.7:
+                r_level = "High"
+            elif prob >= 0.4:
+                r_level = "Medium"
+            else:
+                r_level = "Low"
+            
+            risk_counts[r_level] += 1
+            total_probability += prob
+            total_revenue += customer_revenues[i]
         
         # Scale up to full dataset estimate
         scale_factor = len(CUSTOMER_DF) / sample_size if sample_size > 0 else 1
